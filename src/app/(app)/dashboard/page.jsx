@@ -1,4 +1,3 @@
-// src/app/(app)/dashboard/page.jsx
 "use client";
 
 import { useMemo } from "react";

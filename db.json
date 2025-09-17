@@ -1,0 +1,71 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "nombre": "Laura Méndez",
+      "correo": "laura.mendez@example.com",
+      "contraseña": "passwordGerente123",
+      "rol": "gerente"
+    },
+    {
+      "id": 2,
+      "nombre": "Pedro Pascal",
+      "correo": "pedro.pascal@example.com",
+      "contraseña": "passwordUsuario456",
+      "rol": "usuario"
+    },
+    {
+      "id": 3,
+      "nombre": "Ana Fuentes",
+      "correo": "ana.fuentes@example.com",
+      "contraseña": "passwordUsuario789",
+      "rol": "usuario"
+    }
+  ],
+  "proyectos": [
+    {
+      "id": 1,
+      "nombre": "Lanzamiento App Financiera",
+      "descripcion": "Coordinar el lanzamiento de la nueva app móvil para el control de finanzas personales.",
+      "fechaInicio": "2025-10-01",
+      "fechaFinalizacion": "2025-12-15",
+      "imagenUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
+      "gerenteId": 1
+    }
+  ],
+  "tareas": [
+    {
+      "id": 101,
+      "titulo": "Diseñar UI/UX del Dashboard",
+      "descripcion": "Crear los mockups y prototipos de alta fidelidad para la pantalla principal.",
+      "fechaInicio": "2025-10-05",
+      "fechaEntrega": "2025-10-20",
+      "importancia": "alta",
+      "estado": "finalizado",
+      "proyectoId": 1,
+      "usuarioId": 2
+    },
+    {
+      "id": 102,
+      "titulo": "Desarrollar módulo de autenticación",
+      "descripcion": "Implementar el login, registro y recuperación de contraseña.",
+      "fechaInicio": "2025-10-21",
+      "fechaEntrega": "2025-11-05",
+      "importancia": "alta",
+      "estado": "en progreso",
+      "proyectoId": 1,
+      "usuarioId": 3
+    },
+    {
+      "id": 103,
+      "titulo": "Configurar base de datos",
+      "descripcion": "Preparar el esquema de la base de datos para producción.",
+      "fechaInicio": "2025-10-15",
+      "fechaEntrega": "2025-10-25",
+      "importancia": "media",
+      "estado": "pendiente",
+      "proyectoId": 1,
+      "usuarioId": 3
+    }
+  ]
+}

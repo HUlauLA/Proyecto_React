@@ -1,55 +1,54 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:3001",
+});
 
 const AuthContext = createContext(undefined);
 
-
-const USERS_KEY = "users";
 const SESSION_KEY = "session_user";
 
 export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null); // { id, name, email, role }
 
-  
-  const readUsers = () => JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-  const writeUsers = (arr) => localStorage.setItem(USERS_KEY, JSON.stringify(arr));
-
-  
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
-      if (raw) setUser(JSON.parse(raw));
+      if (raw) {
+        setUser(JSON.parse(raw));
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const register = async ({ name, email, password, role = "usuario" }) => {
-    const users = readUsers();
-
-    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+  const register = async ({ name, email, password, role = "user" }) => {
+    const response = await api.get(`/users?email=${email}`);
+    if (response.data.length > 0) {
       throw new Error("El correo ya está registrado");
     }
 
-    const id = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
-    const newUser = { id, name, email, password, role };
-    users.push(newUser);
-    writeUsers(users);
+    const newUserResponse = await api.post("/users", { name, email, password, role });
+    const createdUser = newUserResponse.data;
 
-    const session = { id, name, email, role };
+    const session = { id: createdUser.id, name: createdUser.name, email: createdUser.email, role: createdUser.role };
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     setUser(session);
     return session;
   };
 
   const login = async ({ email, password }) => {
-    const users = readUsers();
-    const found = users.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    if (!found) throw new Error("Credenciales inválidas");
-    const session = { id: found.id, name: found.name, email: found.email, role: found.role };
+    const response = await api.get(`/users?email=${email.toLowerCase()}`);
+    const foundUser = response.data[0];
+
+    if (!foundUser || foundUser.password !== password) {
+      throw new Error("Credenciales inválidas");
+    }
+
+    const session = { id: foundUser.id, name: foundUser.name, email: foundUser.email, role: foundUser.role };
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
     setUser(session);
     return session;

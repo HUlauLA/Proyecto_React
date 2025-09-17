@@ -1,71 +1,71 @@
 {
-  "usuarios": [
+  "users": [
     {
       "id": 1,
-      "nombre": "Laura Méndez",
-      "correo": "laura.mendez@example.com",
-      "contraseña": "passwordGerente123",
-      "rol": "gerente"
+      "name": "Laura Méndez",
+      "email": "laura.mendez@example.com",
+      "password": "passwordGerente123",
+      "role": "gerente"
     },
     {
       "id": 2,
-      "nombre": "Pedro Pascal",
-      "correo": "pedro.pascal@example.com",
-      "contraseña": "passwordUsuario456",
-      "rol": "usuario"
+      "name": "Pedro Pascal",
+      "email": "pedro.pascal@example.com",
+      "password": "passwordUsuario456",
+      "role": "usuario"
     },
     {
       "id": 3,
-      "nombre": "Ana Fuentes",
-      "correo": "ana.fuentes@example.com",
-      "contraseña": "passwordUsuario789",
-      "rol": "usuario"
+      "name": "Ana Fuentes",
+      "email": "ana.fuentes@example.com",
+      "password": "passwordUsuario789",
+      "role": "usuario"
     }
   ],
-  "proyectos": [
+  "projects": [
     {
       "id": 1,
-      "nombre": "Lanzamiento App Financiera",
-      "descripcion": "Coordinar el lanzamiento de la nueva app móvil para el control de finanzas personales.",
-      "fechaInicio": "2025-10-01",
-      "fechaFinalizacion": "2025-12-15",
-      "imagenUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
-      "gerenteId": 1
+      "name": "Lanzamiento App Financiera",
+      "description": "Coordinar el lanzamiento de la nueva app móvil para el control de finanzas personales.",
+      "startDate": "2025-10-01",
+      "endDate": "2025-12-15",
+      "imageUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
+      "managerId": 1
     }
   ],
-  "tareas": [
+  "tasks": [
     {
       "id": 101,
-      "titulo": "Diseñar UI/UX del Dashboard",
-      "descripcion": "Crear los mockups y prototipos de alta fidelidad para la pantalla principal.",
-      "fechaInicio": "2025-10-05",
-      "fechaEntrega": "2025-10-20",
-      "importancia": "alta",
-      "estado": "finalizado",
-      "proyectoId": 1,
-      "usuarioId": 2
+      "title": "Diseñar UI/UX del Dashboard",
+      "description": "Crear los mockups y prototipos de alta fidelidad para la pantalla principal.",
+      "startDate": "2025-10-05",
+      "dueDate": "2025-10-20",
+      "priority": "alta",
+      "status": "finalizado",
+      "projectId": 1,
+      "userId": 2
     },
     {
       "id": 102,
-      "titulo": "Desarrollar módulo de autenticación",
-      "descripcion": "Implementar el login, registro y recuperación de contraseña.",
-      "fechaInicio": "2025-10-21",
-      "fechaEntrega": "2025-11-05",
-      "importancia": "alta",
-      "estado": "en progreso",
-      "proyectoId": 1,
-      "usuarioId": 3
+      "title": "Desarrollar módulo de autenticación",
+      "description": "Implementar el login, registro y recuperación de contraseña.",
+      "startDate": "2025-10-21",
+      "dueDate": "2025-11-05",
+      "priority": "alta",
+      "status": "en progreso",
+      "projectId": 1,
+      "userId": 3
     },
     {
       "id": 103,
-      "titulo": "Configurar base de datos",
-      "descripcion": "Preparar el esquema de la base de datos para producción.",
-      "fechaInicio": "2025-10-15",
-      "fechaEntrega": "2025-10-25",
-      "importancia": "media",
-      "estado": "pendiente",
-      "proyectoId": 1,
-      "usuarioId": 3
+      "title": "Configurar base de datos",
+      "description": "Preparar el esquema de la base de datos para producción.",
+      "startDate": "2025-10-15",
+      "dueDate": "2025-10-25",
+      "priority": "media",
+      "status": "pendiente",
+      "projectId": 1,
+      "userId": 3
     }
   ]
 }

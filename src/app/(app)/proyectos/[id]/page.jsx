@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
+import CreateTaskModal from '@/components/CreateTaskModal';
 
 const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   const getPriorityDetails = (priority) => {
@@ -109,7 +110,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   );
 };
 
-const TaskColumn = ({ title, tasks, users, onUpdateTask }) => (
+const TaskColumn = ({ title, tasks, users, onUpdateTask, onAddTask }) => (
   <div className="col-md-4">
     <div className="bg-light p-3 rounded h-100">
       <h5 className="mb-3 text-black">{title}</h5>
@@ -122,7 +123,9 @@ const TaskColumn = ({ title, tasks, users, onUpdateTask }) => (
         />
       ))}
       {title === 'Tareas pendientes' && (
-        <button className="btn btn-secondary w-100">+</button>
+        <button className="btn btn-secondary w-100" onClick={onAddTask}>
+          +
+        </button>
       )}
     </div>
   </div>
@@ -137,6 +140,7 @@ export default function ProjectDetailPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -206,6 +210,7 @@ export default function ProjectDetailPage() {
           tasks={pendingTasks}
           users={users}
           onUpdateTask={handleUpdateTask}
+          onAddTask={() => setShowTaskModal(true)}
         />
         <TaskColumn
           title="Tareas en progreso"
@@ -220,6 +225,11 @@ export default function ProjectDetailPage() {
           onUpdateTask={handleUpdateTask}
         />
       </div>
+      <CreateTaskModal
+        show={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
+        users={users}
+      />
     </div>
   );
 }

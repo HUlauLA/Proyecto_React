@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import ProjectForm from "./ProjectForm";
 
-export default function CreateProjectModal({ show, onClose, onProjectCreated }) {
+export default function EditProjectModal({ show, onClose, project, onProjectUpdated }) {
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === "Escape") {
@@ -26,8 +26,8 @@ export default function CreateProjectModal({ show, onClose, onProjectCreated }) 
 
   const handleSave = () => {
     onClose();
-    if (onProjectCreated) {
-      onProjectCreated();
+    if (onProjectUpdated) {
+      onProjectUpdated();
     }
   };
 
@@ -40,14 +40,15 @@ export default function CreateProjectModal({ show, onClose, onProjectCreated }) 
       <div className="modal-dialog modal-dialog-centered modal-lg" onClick={handleModalContentClick}>
         <div className="modal-content">
           <div className="modal-header border-0">
-            <h5 className="modal-title">Crear proyecto</h5>
+            <h5 className="modal-title">Editar proyecto</h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
             <ProjectForm 
+              project={project}
               onSave={handleSave}
               onCancel={onClose}
-              isEditing={false}
+              isEditing={true}
             />
           </div>
         </div>

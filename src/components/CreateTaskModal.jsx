@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import TaskForm from './TaskForm';
 
-export default function CreateTaskModal({ show, onClose, users = [] }) {
+export default function CreateTaskModal({ show, onClose, users = [], projectId, onTaskCreated }) {
   // Cierra el modal si se presiona la tecla Escape
   useEffect(() => {
     const handleEsc = (event) => {
@@ -25,6 +26,13 @@ export default function CreateTaskModal({ show, onClose, users = [] }) {
     e.stopPropagation();
   };
 
+  const handleSave = () => {
+    onClose();
+    if (onTaskCreated) {
+      onTaskCreated();
+    }
+  };
+
   return (
     <div
       className="modal fade show"
@@ -32,7 +40,7 @@ export default function CreateTaskModal({ show, onClose, users = [] }) {
       onClick={onClose}
     >
       <div
-        className="modal-dialog modal-dialog-centered"
+        className="modal-dialog modal-dialog-centered modal-lg"
         onClick={handleModalContentClick}
       >
         <div className="modal-content">
@@ -45,89 +53,12 @@ export default function CreateTaskModal({ show, onClose, users = [] }) {
             ></button>
           </div>
           <div className="modal-body">
-            <form>
-              <div className="mb-3">
-                <label
-                  htmlFor="taskTitle"
-                  className="form-label small text-muted"
-                >
-                  Título de la tarea
-                </label>
-                <input type="text" className="form-control" id="taskTitle" />
-              </div>
-              <div className="mb-3">
-                <label
-                  htmlFor="taskDescription"
-                  className="form-label small text-muted"
-                >
-                  Descripción de la tarea
-                </label>
-                <textarea
-                  className="form-control"
-                  id="taskDescription"
-                  rows="4"
-                ></textarea>
-              </div>
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label
-                    htmlFor="startDate"
-                    className="form-label small text-muted"
-                  >
-                    Fecha de inicio
-                  </label>
-                  <input type="date" className="form-control" id="startDate" />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label
-                    htmlFor="dueDate"
-                    className="form-label small text-muted"
-                  >
-                    Fecha de entrega
-                  </label>
-                  <input type="date" className="form-control" id="dueDate" />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label
-                    htmlFor="assignTo"
-                    className="form-label small text-muted"
-                  >
-                    Asignar a
-                  </label>
-                  <select className="form-select" id="assignTo">
-                    <option value="">Seleccionar usuario...</option>
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label
-                    htmlFor="priority"
-                    className="form-label small text-muted"
-                  >
-                    Nivel de importancia
-                  </label>
-                  <select className="form-select" id="priority">
-                    <option value="baja">Baja</option>
-                    <option value="media">Media</option>
-                    <option value="alta">Alta</option>
-                  </select>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div className="modal-footer border-0 justify-content-end">
-            <button type="button" className="btn btn-light" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="button" className="btn btn-dark">
-              Guardar
-            </button>
+            <TaskForm 
+              projectId={projectId}
+              users={users}
+              onSave={handleSave}
+              onCancel={onClose}
+            />
           </div>
         </div>
       </div>

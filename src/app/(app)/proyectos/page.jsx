@@ -14,12 +14,19 @@ const getRemainingDays = (endDate) => {
   return diffDays;
 };
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, tasks = [] }) => {
   const remainingDays = getRemainingDays(project.endDate);
   const relevantDate = new Date(project.endDate).toLocaleDateString('es-ES', {
     day: '2-digit',
     month: 'short',
   });
+
+  // Calcular progreso basado en tareas completadas
+  const projectTasks = tasks.filter(task => task.projectId === project.id);
+  const completedTasks = projectTasks.filter(task => task.status === 'finalizado');
+  const progressPercentage = projectTasks.length > 0 
+    ? Math.round((completedTasks.length / projectTasks.length) * 100)
+    : 0;
 
   return (
     <div className="col">
@@ -38,13 +45,15 @@ const ProjectCard = ({ project }) => {
           />
           <div className="card-body d-flex flex-column">
             <h5 className="card-title">{project.name}</h5>
-            <p className="card-text small text-muted">Progreso</p>
+            <p className="card-text small text-muted">
+              Progreso ({completedTasks.length}/{projectTasks.length} tareas)
+            </p>
             <div className="progress mb-3" style={{ height: '8px' }}>
               <div
                 className="progress-bar"
                 role="progressbar"
-                style={{ width: '40%' }}
-                aria-valuenow="40"
+                style={{ width: `${progressPercentage}%` }}
+                aria-valuenow={progressPercentage}
                 aria-valuemin="0"
                 aria-valuemax="100"
               ></div>
@@ -81,22 +90,56 @@ const CreateProjectCard = ({ onClick }) => (
 
 export default function ProyectosPage() {
   const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  
+  const handleProjectCreated = () => {
+    // Refrescar la lista de proyectos y tareas
+    const fetchData = async () => {
+      try {
+        const [projectsRes, tasksRes] = await Promise.all([
+          fetch('http://localhost:3001/projects'),
+          fetch('http://localhost:3001/tasks')
+        ]);
+        
+        if (!projectsRes.ok || !tasksRes.ok) {
+          throw new Error('No se pudieron obtener los datos');
+        }
+        
+        const projectsData = await projectsRes.json();
+        const tasksData = await tasksRes.json();
+        
+        setProjects(projectsData);
+        setTasks(tasksData);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchData();
+  };
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/projects');
-        if (!response.ok) {
-          throw new Error('No se pudieron obtener los proyectos');
+        const [projectsRes, tasksRes] = await Promise.all([
+          fetch('http://localhost:3001/projects'),
+          fetch('http://localhost:3001/tasks')
+        ]);
+        
+        if (!projectsRes.ok || !tasksRes.ok) {
+          throw new Error('No se pudieron obtener los datos');
         }
-        const data = await response.json();
-        setProjects(data);
+        
+        const projectsData = await projectsRes.json();
+        const tasksData = await tasksRes.json();
+        
+        setProjects(projectsData);
+        setTasks(tasksData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -104,7 +147,7 @@ export default function ProyectosPage() {
       }
     };
 
-    fetchProjects();
+    fetchData();
   }, []);
 
   return (
@@ -120,12 +163,16 @@ export default function ProyectosPage() {
       {!loading && !error && (
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} tasks={tasks} />
           ))}
           <CreateProjectCard onClick={handleOpenModal} />
         </div>
       )}
-      <CreateProjectModal show={showModal} onClose={handleCloseModal} />
+      <CreateProjectModal 
+        show={showModal} 
+        onClose={handleCloseModal} 
+        onProjectCreated={handleProjectCreated}
+      />
     </div>
   );
 }

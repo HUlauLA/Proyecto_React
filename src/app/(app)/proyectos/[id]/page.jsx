@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import CreateTaskModal from '@/components/CreateTaskModal';
+import EditProjectModal from '@/components/EditProjectModal';
 
 const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   const getPriorityDetails = (priority) => {
@@ -141,6 +142,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -184,6 +186,38 @@ export default function ProjectDetailPage() {
     );
   };
 
+  const handleProjectUpdated = () => {
+    // Refrescar los datos del proyecto
+    const fetchData = async () => {
+      try {
+        const [projectRes, tasksRes, usersRes] = await Promise.all([
+          fetch(`http://localhost:3001/projects?id=${id}`),
+          fetch(`http://localhost:3001/tasks?projectId=${id}`),
+          fetch(`http://localhost:3001/users`),
+        ]);
+
+        if (!projectRes.ok || !tasksRes.ok || !usersRes.ok) {
+          throw new Error('Error al obtener los datos del proyecto.');
+        }
+
+        const projectDataArray = await projectRes.json();
+        const tasksData = await tasksRes.json();
+        const usersData = await usersRes.json();
+
+        if (projectDataArray.length === 0) {
+          throw new Error('Proyecto no encontrado.');
+        }
+
+        setProject(projectDataArray[0]);
+        setTasks(tasksData);
+        setUsers(usersData);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchData();
+  };
+
   if (loading) return <p>Cargando proyecto...</p>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!project) return <p>Proyecto no encontrado.</p>;
@@ -199,8 +233,17 @@ export default function ProjectDetailPage() {
           <h2>{project.name}</h2>
           <p className="text-white">{project.description}</p>
         </div>
-        <div className="bg-light p-3 rounded-circle">
-          <Image src="/file.svg" alt="Icono" width={24} height={24} />
+        <div className="d-flex gap-2">
+          <button 
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => setShowEditModal(true)}
+            title="Editar proyecto"
+          >
+            <i className="bi bi-pencil"></i> Editar
+          </button>
+          <div className="bg-light p-3 rounded-circle">
+            <Image src="/file.svg" alt="Icono" width={24} height={24} />
+          </div>
         </div>
       </div>
 
@@ -229,6 +272,14 @@ export default function ProjectDetailPage() {
         show={showTaskModal}
         onClose={() => setShowTaskModal(false)}
         users={users}
+        projectId={id}
+        onTaskCreated={handleProjectUpdated}
+      />
+      <EditProjectModal
+        show={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        project={project}
+        onProjectUpdated={handleProjectUpdated}
       />
     </div>
   );

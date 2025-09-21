@@ -28,19 +28,28 @@ const ProjectCard = ({ project, progress }) => {
         className="text-decoration-none text-dark"
       >
         <div className="card h-100">
-          <Image
-            src={project.imageUrl}
-            alt={`Imagen de ${project.name}`}
-            width={250}
-            height={250}
-            className="card-img-top"
-            priority={true}
+          <div
             style={{
-              objectFit: 'contain',
-              width: 'auto',
-              height: 'auto',
+              height: '250px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem',
+              position: 'relative',
             }}
-          />
+          >
+            <Image
+              src={project.imageUrl}
+              alt={`Imagen de ${project.name}`}
+              fill={true}
+              className="card-img-top"
+              priority={true}
+              style={{
+                objectFit: 'contain',
+                padding: '1rem',
+              }}
+            />
+          </div>
           <div className="card-body d-flex flex-column">
             <h5 className="card-title">{project.name}</h5>
             <p className="card-text small text-muted">Progreso</p>

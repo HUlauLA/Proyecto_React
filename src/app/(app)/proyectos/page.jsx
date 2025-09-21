@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import CreateProjectModal from '@/components/CreateProjectModal';
+import { useAuth } from '@/context/AuthContext'; // 1. Importar useAuth
 
 const getRemainingDays = (endDate) => {
   const end = new Date(endDate);
@@ -94,6 +95,7 @@ const CreateProjectCard = ({ onClick }) => (
 );
 
 export default function ProyectosPage() {
+  const { user } = useAuth(); // 2. Obtener el usuario del contexto
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -161,7 +163,12 @@ export default function ProyectosPage() {
     <div className="p-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Proyectos</h2>
-        <h5 className="text-muted mb-0">Crear proyecto</h5>
+        {/* 3. Mostrar el botón solo si el rol es 'gerente' */}
+        {user?.role === 'gerente' && (
+          <button className="btn btn-dark" onClick={handleOpenModal}>
+            Crear proyecto
+          </button>
+        )}
       </div>
 
       {loading && <p>Cargando proyectos...</p>}
@@ -176,7 +183,10 @@ export default function ProyectosPage() {
               progress={project.progress}
             />
           ))}
-          <CreateProjectCard onClick={handleOpenModal} />
+          {/* 3. Mostrar la tarjeta de 'añadir' solo si el rol es 'gerente' */}
+          {user?.role === 'gerente' && (
+            <CreateProjectCard onClick={handleOpenModal} />
+          )}
         </div>
       )}
       <CreateProjectModal

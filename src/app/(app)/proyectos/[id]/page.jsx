@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import CreateTaskModal from '@/components/CreateTaskModal';
+import { useAuth } from '@/context/AuthContext'; // 1. Importar useAuth
 
 const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   const getPriorityDetails = (priority) => {
@@ -110,7 +111,15 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   );
 };
 
-const TaskColumn = ({ title, tasks, users, onUpdateTask, onAddTask }) => (
+// Modificar TaskColumn para recibir el rol del usuario
+const TaskColumn = ({
+  title,
+  tasks,
+  users,
+  onUpdateTask,
+  onAddTask,
+  userRole,
+}) => (
   <div className="col-md-4">
     <div className="bg-light p-3 rounded h-100">
       <h5 className="mb-3 text-black">{title}</h5>
@@ -122,7 +131,8 @@ const TaskColumn = ({ title, tasks, users, onUpdateTask, onAddTask }) => (
           onUpdateTask={onUpdateTask}
         />
       ))}
-      {title === 'Tareas pendientes' && (
+      {/* 3. Mostrar el botón solo si el rol es 'gerente' */}
+      {title === 'Tareas pendientes' && userRole === 'gerente' && (
         <button className="btn btn-secondary w-100" onClick={onAddTask}>
           +
         </button>
@@ -132,6 +142,7 @@ const TaskColumn = ({ title, tasks, users, onUpdateTask, onAddTask }) => (
 );
 
 export default function ProjectDetailPage() {
+  const { user } = useAuth(); // 2. Obtener el usuario del contexto
   const params = useParams();
   const { id } = params;
 
@@ -215,20 +226,24 @@ export default function ProjectDetailPage() {
           users={users}
           onUpdateTask={handleUpdateTask}
           onAddTask={() => setShowTaskModal(true)}
+          userRole={user?.role} // 4. Pasar el rol a la columna
         />
         <TaskColumn
           title="Tareas en progreso"
           tasks={inProgressTasks}
           users={users}
           onUpdateTask={handleUpdateTask}
+          userRole={user?.role}
         />
         <TaskColumn
           title="Tareas finalizadas"
           tasks={completedTasks}
           users={users}
           onUpdateTask={handleUpdateTask}
+          userRole={user?.role}
         />
       </div>
+
       <CreateTaskModal
         show={showTaskModal}
         onClose={() => setShowTaskModal(false)}

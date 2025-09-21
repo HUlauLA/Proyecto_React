@@ -14,7 +14,7 @@ const getRemainingDays = (endDate) => {
   return diffDays;
 };
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, progress }) => {
   const remainingDays = getRemainingDays(project.endDate);
   const relevantDate = new Date(project.endDate).toLocaleDateString('es-ES', {
     day: '2-digit',
@@ -43,7 +43,7 @@ const ProjectCard = ({ project }) => {
               <div
                 className="progress-bar"
                 role="progressbar"
-                style={{ width: '40%' }}
+                style={{ width: `${progress}%` }}
                 aria-valuenow="40"
                 aria-valuemin="0"
                 aria-valuemax="100"
@@ -91,12 +91,43 @@ export default function ProyectosPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('http://localhost:3001/projects');
-        if (!response.ok) {
-          throw new Error('No se pudieron obtener los proyectos');
+        const [projectsRes, tasksRes] = await Promise.all([
+          fetch('http://localhost:3001/projects'),
+          fetch('http://localhost:3001/tasks'),
+        ]);
+        if (!projectsRes.ok || !tasksRes.ok) {
+          throw new Error('No se pudieron obtener los datos');
         }
-        const data = await response.json();
-        setProjects(data);
+        const projectsData = await projectsRes.json();
+        const tasksData = await tasksRes.json();
+        const projectsWithProgress = projectsData.map((project) => {
+          const projectTasks = tasksData.filter(
+            (task) => String(task.projectId) === String(project.id),
+          );
+
+          if (projectTasks.length === 0) {
+            return { ...project, progress: 0 };
+          }
+
+          const maxPossibleScore = projectTasks.length * 3;
+
+          const currentScore = projectTasks.reduce((score, task) => {
+            if (task.status === 'finalizado') {
+              return score + 3;
+            }
+            if (task.status === 'en progreso') {
+              return score + 1;
+            }
+            return score;
+          }, 0);
+
+          const progress =
+            maxPossibleScore > 0 ? (currentScore / maxPossibleScore) * 100 : 0;
+
+          return { ...project, progress: Math.round(progress) };
+        });
+
+        setProjects(projectsWithProgress);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -120,7 +151,11 @@ export default function ProyectosPage() {
       {!loading && !error && (
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              progress={project.progress}
+            />
           ))}
           <CreateProjectCard onClick={handleOpenModal} />
         </div>

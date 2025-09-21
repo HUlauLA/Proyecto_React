@@ -31,10 +31,16 @@ const ProjectCard = ({ project, progress }) => {
           <Image
             src={project.imageUrl}
             alt={`Imagen de ${project.name}`}
-            width={400}
+            width={250}
             height={250}
             className="card-img-top"
-            style={{ objectFit: 'contain' }}
+            priority={true}
+            style={{
+              objectFit: 'contain',
+              width: 'auto',
+              height: 'auto',
+              maxHeight: '250px',
+            }}
           />
           <div className="card-body d-flex flex-column">
             <h5 className="card-title">{project.name}</h5>
@@ -84,9 +90,14 @@ export default function ProyectosPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+
+  const handleProjectCreated = () => {
+    setRefreshKey((oldKey) => oldKey + 1);
+  };
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -136,7 +147,7 @@ export default function ProyectosPage() {
     };
 
     fetchProjects();
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div className="p-5">
@@ -160,7 +171,11 @@ export default function ProyectosPage() {
           <CreateProjectCard onClick={handleOpenModal} />
         </div>
       )}
-      <CreateProjectModal show={showModal} onClose={handleCloseModal} />
+      <CreateProjectModal
+        show={showModal}
+        onClose={handleCloseModal}
+        onProjectCreated={handleProjectCreated}
+      />
     </div>
   );
 }

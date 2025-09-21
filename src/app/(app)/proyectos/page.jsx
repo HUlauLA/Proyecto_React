@@ -39,7 +39,6 @@ const ProjectCard = ({ project, progress }) => {
               objectFit: 'contain',
               width: 'auto',
               height: 'auto',
-              maxHeight: '250px',
             }}
           />
           <div className="card-body d-flex flex-column">

@@ -184,6 +184,10 @@ export default function ProjectDetailPage() {
     );
   };
 
+  const handleTaskCreated = (newTask) => {
+    setTasks((currentTasks) => [...currentTasks, newTask]);
+  };
+
   if (loading) return <p>Cargando proyecto...</p>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!project) return <p>Proyecto no encontrado.</p>;
@@ -229,6 +233,8 @@ export default function ProjectDetailPage() {
         show={showTaskModal}
         onClose={() => setShowTaskModal(false)}
         users={users}
+        projectId={id}
+        onTaskCreated={handleTaskCreated}
       />
     </div>
   );

@@ -18,7 +18,6 @@ export default function CreateProjectModal({
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Limpia el formulario cuando se cierra el modal
   useEffect(() => {
     if (!show) {
       setFormData({
@@ -83,10 +82,9 @@ export default function CreateProjectModal({
     if (!validateForm()) return;
 
     setIsSaving(true);
-    let imageUrl = '/images/default.png'; // Imagen por defecto
+    let imageUrl = '/images/default.png';
 
     try {
-      // 1. Subir la imagen si existe
       if (formData.imageFile) {
         const imageFormData = new FormData();
         const uniqueId = uuidv4();
@@ -106,7 +104,6 @@ export default function CreateProjectModal({
         imageUrl = filePath;
       }
 
-      // 2. Crear el objeto del proyecto
       const newProject = {
         id: uuidv4(),
         name: formData.name,
@@ -114,10 +111,9 @@ export default function CreateProjectModal({
         startDate: formData.startDate,
         endDate: formData.endDate,
         imageUrl,
-        managerId: 1, // Asumiendo un manager por defecto
+        managerId: 1,
       };
 
-      // 3. Guardar el proyecto en json-server
       const projectResponse = await fetch('http://localhost:3001/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,7 +122,7 @@ export default function CreateProjectModal({
 
       if (!projectResponse.ok) throw new Error('Error al guardar el proyecto.');
 
-      onProjectCreated(); // Llama a la función para refrescar la lista
+      onProjectCreated();
       onClose();
     } catch (error) {
       console.error('Error:', error);

@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 
 export default function CreateTaskModal({ show, onClose, users = [] }) {
-  // Cierra el modal si se presiona la tecla Escape
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === 'Escape') {
@@ -20,7 +19,6 @@ export default function CreateTaskModal({ show, onClose, users = [] }) {
     return null;
   }
 
-  // Evita que el clic dentro del modal lo cierre
   const handleModalContentClick = (e) => {
     e.stopPropagation();
   };

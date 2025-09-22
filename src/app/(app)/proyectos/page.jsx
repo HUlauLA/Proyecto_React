@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import CreateProjectModal from '@/components/CreateProjectModal';
-import { useAuth } from '@/context/AuthContext'; // 1. Importar useAuth
+import { useAuth } from '@/context/AuthContext';
 
 const getRemainingDays = (endDate) => {
   const end = new Date(endDate);
@@ -163,7 +163,6 @@ export default function ProyectosPage() {
     <div className="p-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Proyectos</h2>
-        {/* 3. Mostrar el botón solo si el rol es 'gerente' */}
         {user?.role === 'gerente' && (
           <button className="btn btn-dark" onClick={handleOpenModal}>
             Crear proyecto
@@ -183,7 +182,6 @@ export default function ProyectosPage() {
               progress={project.progress}
             />
           ))}
-          {/* 3. Mostrar la tarjeta de 'añadir' solo si el rol es 'gerente' */}
           {user?.role === 'gerente' && (
             <CreateProjectCard onClick={handleOpenModal} />
           )}

@@ -111,7 +111,6 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   );
 };
 
-// Modificar TaskColumn para recibir el rol del usuario
 const TaskColumn = ({
   title,
   tasks,
@@ -131,7 +130,6 @@ const TaskColumn = ({
           onUpdateTask={onUpdateTask}
         />
       ))}
-      {/* 3. Mostrar el botón solo si el rol es 'gerente' */}
       {title === 'Tareas pendientes' && userRole === 'gerente' && (
         <button className="btn btn-secondary w-100" onClick={onAddTask}>
           +

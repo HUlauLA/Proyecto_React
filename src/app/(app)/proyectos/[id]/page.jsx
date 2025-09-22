@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import CreateTaskModal from '@/components/CreateTaskModal';
-import { useAuth } from '@/context/AuthContext'; // 1. Importar useAuth
+import { useAuth } from '@/context/AuthContext';
 
 const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   const getPriorityDetails = (priority) => {
@@ -152,6 +152,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -214,8 +215,17 @@ export default function ProjectDetailPage() {
           <h2>{project.name}</h2>
           <p className="text-white">{project.description}</p>
         </div>
-        <div className="bg-light p-3 rounded-circle">
-          <Image src="/file.svg" alt="Icono" width={24} height={24} />
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => setShowEditModal(true)}
+            title="Editar proyecto"
+          >
+            <i className="bi bi-pencil"></i> Editar
+          </button>
+          <div className="bg-light p-3 rounded-circle">
+            <Image src="/file.svg" alt="Icono" width={24} height={24} />
+          </div>
         </div>
       </div>
 

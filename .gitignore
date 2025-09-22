@@ -42,3 +42,6 @@ next-env.d.ts
 
 # DB Example
 db.json
+
+# Files
+/public/images/*

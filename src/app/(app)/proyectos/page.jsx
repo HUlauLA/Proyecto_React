@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import CreateProjectModal from '@/components/CreateProjectModal';
+import { useAuth } from '@/context/AuthContext';
 
 const getRemainingDays = (endDate) => {
   const end = new Date(endDate);
@@ -14,19 +15,12 @@ const getRemainingDays = (endDate) => {
   return diffDays;
 };
 
-const ProjectCard = ({ project, tasks = [] }) => {
+const ProjectCard = ({ project, progress }) => {
   const remainingDays = getRemainingDays(project.endDate);
   const relevantDate = new Date(project.endDate).toLocaleDateString('es-ES', {
     day: '2-digit',
     month: 'short',
   });
-
-  // Calcular progreso basado en tareas completadas
-  const projectTasks = tasks.filter(task => task.projectId === project.id);
-  const completedTasks = projectTasks.filter(task => task.status === 'finalizado');
-  const progressPercentage = projectTasks.length > 0 
-    ? Math.round((completedTasks.length / projectTasks.length) * 100)
-    : 0;
 
   return (
     <div className="col">
@@ -35,25 +29,37 @@ const ProjectCard = ({ project, tasks = [] }) => {
         className="text-decoration-none text-dark"
       >
         <div className="card h-100">
-          <Image
-            src={project.imageUrl}
-            alt={`Imagen de ${project.name}`}
-            width={400}
-            height={250}
-            className="card-img-top"
-            style={{ objectFit: 'contain' }}
-          />
+          <div
+            style={{
+              height: '250px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem',
+              position: 'relative',
+            }}
+          >
+            <Image
+              src={project.imageUrl}
+              alt={`Imagen de ${project.name}`}
+              fill={true}
+              className="card-img-top"
+              priority={true}
+              style={{
+                objectFit: 'contain',
+                padding: '1rem',
+              }}
+            />
+          </div>
           <div className="card-body d-flex flex-column">
             <h5 className="card-title">{project.name}</h5>
-            <p className="card-text small text-muted">
-              Progreso ({completedTasks.length}/{projectTasks.length} tareas)
-            </p>
+            <p className="card-text small text-muted">Progreso</p>
             <div className="progress mb-3" style={{ height: '8px' }}>
               <div
                 className="progress-bar"
                 role="progressbar"
-                style={{ width: `${progressPercentage}%` }}
-                aria-valuenow={progressPercentage}
+                style={{ width: `${progress}%` }}
+                aria-valuenow="40"
                 aria-valuemin="0"
                 aria-valuemax="100"
               ></div>
@@ -89,57 +95,60 @@ const CreateProjectCard = ({ onClick }) => (
 );
 
 export default function ProyectosPage() {
+  const { user } = useAuth(); // 2. Obtener el usuario del contexto
   const [projects, setProjects] = useState([]);
-  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
-  
+
   const handleProjectCreated = () => {
-    // Refrescar la lista de proyectos y tareas
-    const fetchData = async () => {
-      try {
-        const [projectsRes, tasksRes] = await Promise.all([
-          fetch('http://localhost:3001/projects'),
-          fetch('http://localhost:3001/tasks')
-        ]);
-        
-        if (!projectsRes.ok || !tasksRes.ok) {
-          throw new Error('No se pudieron obtener los datos');
-        }
-        
-        const projectsData = await projectsRes.json();
-        const tasksData = await tasksRes.json();
-        
-        setProjects(projectsData);
-        setTasks(tasksData);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-    fetchData();
+    setRefreshKey((oldKey) => oldKey + 1);
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProjects = async () => {
       try {
         const [projectsRes, tasksRes] = await Promise.all([
           fetch('http://localhost:3001/projects'),
-          fetch('http://localhost:3001/tasks')
+          fetch('http://localhost:3001/tasks'),
         ]);
-        
         if (!projectsRes.ok || !tasksRes.ok) {
           throw new Error('No se pudieron obtener los datos');
         }
-        
         const projectsData = await projectsRes.json();
         const tasksData = await tasksRes.json();
-        
-        setProjects(projectsData);
-        setTasks(tasksData);
+        const projectsWithProgress = projectsData.map((project) => {
+          const projectTasks = tasksData.filter(
+            (task) => String(task.projectId) === String(project.id),
+          );
+
+          if (projectTasks.length === 0) {
+            return { ...project, progress: 0 };
+          }
+
+          const maxPossibleScore = projectTasks.length * 3;
+
+          const currentScore = projectTasks.reduce((score, task) => {
+            if (task.status === 'finalizado') {
+              return score + 3;
+            }
+            if (task.status === 'en progreso') {
+              return score + 1;
+            }
+            return score;
+          }, 0);
+
+          const progress =
+            maxPossibleScore > 0 ? (currentScore / maxPossibleScore) * 100 : 0;
+
+          return { ...project, progress: Math.round(progress) };
+        });
+
+        setProjects(projectsWithProgress);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -147,14 +156,18 @@ export default function ProyectosPage() {
       }
     };
 
-    fetchData();
-  }, []);
+    fetchProjects();
+  }, [refreshKey]);
 
   return (
     <div className="p-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Proyectos</h2>
-        <h5 className="text-muted mb-0">Crear proyecto</h5>
+        {user?.role === 'gerente' && (
+          <button className="btn btn-dark" onClick={handleOpenModal}>
+            Crear proyecto
+          </button>
+        )}
       </div>
 
       {loading && <p>Cargando proyectos...</p>}
@@ -163,14 +176,20 @@ export default function ProyectosPage() {
       {!loading && !error && (
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} tasks={tasks} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              progress={project.progress}
+            />
           ))}
-          <CreateProjectCard onClick={handleOpenModal} />
+          {user?.role === 'gerente' && (
+            <CreateProjectCard onClick={handleOpenModal} />
+          )}
         </div>
       )}
-      <CreateProjectModal 
-        show={showModal} 
-        onClose={handleCloseModal} 
+      <CreateProjectModal
+        show={showModal}
+        onClose={handleCloseModal}
         onProjectCreated={handleProjectCreated}
       />
     </div>

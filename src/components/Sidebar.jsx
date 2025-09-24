@@ -26,7 +26,10 @@ export default function Sidebar() {
       <div className="d-grid gap-2">
         <Item href="/dashboard" label="Dashboard" active={pathname === "/dashboard"} />
         <Item href="/proyectos" label="Proyectos" active={pathname === "/proyectos"} />
-        <Item href="/usuarios"  label="Usuarios"  active={pathname === "/usuarios"} />
+        {/* Solo visible para coordinadores/gerentes */}
+        {user?.role === "gerente" && (
+          <Item href="/usuarios" label="Usuarios" active={pathname === "/usuarios"} />
+        )}
       </div>
 
       <hr className="my-4" />

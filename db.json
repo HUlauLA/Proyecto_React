@@ -1,0 +1,87 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Laura Méndez",
+      "email": "laura.mendez@example.com",
+      "password": "passwordGerente123",
+      "role": "gerente"
+    },
+    {
+      "id": "2",
+      "name": "Pedro Pascal",
+      "email": "pedro.pascal@example.com",
+      "password": "passwordUsuario456",
+      "role": "usuario"
+    },
+    {
+      "id": "3",
+      "name": "Ana Fuentes",
+      "email": "ana.fuentes@example.com",
+      "password": "passwordUsuario789",
+      "role": "usuario"
+    },
+    {
+      "id": "24b6",
+      "name": "Rene Guevara",
+      "email": "rene@gmail.com",
+      "password": "contraseña01",
+      "role": "usuario"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Lanzamiento App Financiera",
+      "description": "Coordinar el lanzamiento de la nueva app móvil para el control de finanzas personales.",
+      "startDate": "2025-10-01",
+      "endDate": "2025-12-17",
+      "managerId": 1,
+      "imageUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
+      "id": "1"
+    },
+    {
+      "id": "0943",
+      "name": "Nuevo Proyecto",
+      "description": "Test",
+      "startDate": "2025-10-12",
+      "endDate": "2026-05-10",
+      "imageUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
+      "managerId": 1
+    }
+  ],
+  "tasks": [
+    {
+      "id": "101",
+      "title": "Diseñar UI/UX del Dashboard",
+      "description": "Crear los mockups y prototipos de alta fidelidad para la pantalla principal.",
+      "startDate": "2025-10-05",
+      "dueDate": "2025-10-20",
+      "priority": "alta",
+      "status": "en progreso",
+      "projectId": 1,
+      "userId": 2
+    },
+    {
+      "id": "102",
+      "title": "Desarrollar módulo de autenticación",
+      "description": "Implementar el login, registro y recuperación de contraseña.",
+      "startDate": "2025-10-21",
+      "dueDate": "2025-11-05",
+      "priority": "alta",
+      "status": "en progreso",
+      "projectId": 1,
+      "userId": 3
+    },
+    {
+      "id": "103",
+      "title": "Configurar base de datos",
+      "description": "Preparar el esquema de la base de datos para producción.",
+      "startDate": "2025-10-15",
+      "dueDate": "2025-10-25",
+      "priority": "media",
+      "status": "finalizado",
+      "projectId": 1,
+      "userId": 3
+    }
+  ]
+}

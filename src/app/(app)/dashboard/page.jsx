@@ -1,52 +1,88 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 export default function DashboardPage() {
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
 
-  const projects = [
-    { id: 1, name: "Proyecto 1", progress: 80, tasks: { pending: 2, doing: 3, done: 10 }, status: "progreso" },
-    { id: 2, name: "Proyecto 2", progress: 100, tasks: { pending: 0, doing: 0, done: 8  }, status: "completado" },
-    { id: 3, name: "Proyecto 3", progress: 20, tasks: { pending: 6, doing: 1, done: 1  }, status: "atrasado" },
-    { id: 4, name: "Proyecto 4", progress: 0,  tasks: { pending: 5, doing: 0, done: 0  }, status: "cancelado" },
-  ];
+  useEffect(() => {
+    Promise.all([
+      fetch("http://localhost:3001/projects").then(res => res.json()),
+      fetch("http://localhost:3001/tasks").then(res => res.json())
+    ]).then(([projectsData, tasksData]) => {
+      setProjects(projectsData);
+      setTasks(tasksData);
+    });
+  }, []);
 
-  const latestDoneTasks = [
-    { id: 101, title: "Última acción realizada 1", project: "Proyecto 1" },
-    { id: 102, title: "Última acción realizada 2", project: "Proyecto 2" },
-    { id: 103, title: "Última acción realizada 3", project: "Proyecto 3" },
-    { id: 104, title: "Última acción realizada 4", project: "Proyecto 4" },
-  ];
+  // Mapear proyectos con stats
+  const projectsWithStats = useMemo(() => {
+    return projects.map(p => {
+      const projectTasks = tasks.filter(t => String(t.projectId) === String(p.id));
+
+
+      const pending = projectTasks.filter(t => t.status === "pendiente").length;
+      const doing = projectTasks.filter(t => t.status === "en progreso").length;
+      const done = projectTasks.filter(t => t.status === "finalizado").length;
+
+      const total = projectTasks.length;
+      const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      let status = "sin iniciar";
+      if (progress === 0) status = "sin iniciar";
+      else if (progress > 0 && progress < 100) status = "en progreso";
+      else if (progress === 100) status = "completado";
+
+      return {
+        ...p,
+        progress,
+        tasks: { pending, doing, done },
+        status
+      };
+    });
+  }, [projects, tasks]);
+
+  // Últimas tareas completadas
+  const latestDoneTasks = useMemo(() => {
+    return tasks
+      .filter(t => t.status === "finalizado")
+      .sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate))
+      .slice(0, 5)
+      .map(t => ({
+        id: t.id,
+        title: t.title,
+        project: projects.find(p => String(p.id) === String(t.projectId))?.name || "Proyecto desconocido"
+      }));
+  }, [tasks, projects]);
+  
 
   const stats = useMemo(() => {
-    const completed  = projects.filter(p => p.status === "completado").length;
-    const inProgress = projects.filter(p => p.status === "progreso").length;
-    const delayed    = projects.filter(p => p.status === "atrasado").length;
-    const canceled   = projects.filter(p => p.status === "cancelado").length;
-    return { completed, inProgress, delayed, canceled };
-  }, [projects]);
+    const notStarted = projectsWithStats.filter(p => p.status === "sin iniciar").length;
+    const inProgress = projectsWithStats.filter(p => p.status === "en progreso").length;
+    const completed = projectsWithStats.filter(p => p.status === "completado").length;
+
+    return { notStarted, inProgress, completed };
+  }, [projectsWithStats]);
+
 
   return (
     <>
       <h2 className="mb-4">Dashboard</h2>
 
       <div className="row g-3 mb-4">
-        <div className="col-6 col-md-3">
-          <StatCard title="Proyectos completados" value={stats.completed} />
+        <div className="col-6 col-md-4">
+          <StatCard title="Proyectos sin iniciar" value={stats.notStarted} />
         </div>
-        <div className="col-6 col-md-3">
+        <div className="col-6 col-md-4">
           <StatCard title="Proyectos en progreso" value={stats.inProgress} />
         </div>
-        <div className="col-6 col-md-3">
-          <StatCard title="Proyectos atrasados" value={stats.delayed} />
-        </div>
-        <div className="col-6 col-md-3">
-          <StatCard title="Proyectos cancelados" value={stats.canceled} />
+        <div className="col-6 col-md-4">
+          <StatCard title="Proyectos completados" value={stats.completed} />
         </div>
       </div>
 
       <div className="row g-3">
-
         <div className="col-lg-8">
           <div className="card p-3">
             <h5 className="mb-3">Proyectos</h5>
@@ -55,26 +91,23 @@ export default function DashboardPage() {
                 <thead>
                   <tr>
                     <th>Nombre del proyecto</th>
-                    <th style={{minWidth: 140}}>Progreso</th>
-                    <th>Tareas faltantes</th>
-                    <th>Tareas en curso</th>
-                    <th>Tareas finalizadas</th>
+                    <th style={{ minWidth: 140 }}>Progreso</th>
+                    <th>Pendientes</th>
+                    <th>En curso</th>
+                    <th>Finalizadas</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map(p => (
+                  {projectsWithStats.map(p => (
                     <tr key={p.id}>
                       <td className="fw-medium">{p.name}</td>
-                      <td style={{minWidth: 140}}>
+                      <td style={{ minWidth: 140 }}>
                         <div className="d-flex align-items-center gap-2">
-                          <div className="progress flex-grow-1" style={{height: 8}}>
+                          <div className="progress flex-grow-1" style={{ height: 8 }}>
                             <div
                               className={`progress-bar ${p.progress === 100 ? "bg-success" : "bg-primary"}`}
                               role="progressbar"
-                              style={{width: `${p.progress}%`}}
-                              aria-valuenow={p.progress}
-                              aria-valuemin="0"
-                              aria-valuemax="100"
+                              style={{ width: `${p.progress}%` }}
                             />
                           </div>
                           <small className="text-body-secondary">{p.progress}%</small>
@@ -101,7 +134,7 @@ export default function DashboardPage() {
                     <div className="fw-medium">{t.title}</div>
                     <small className="text-body-secondary">{t.project}</small>
                   </div>
-                  <i className="bi bi-check2-circle"></i>
+                  <i className="bi bi-check2-circle text-success"></i>
                 </li>
               ))}
             </ul>

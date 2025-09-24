@@ -20,6 +20,13 @@
       "email": "ana.fuentes@example.com",
       "password": "passwordUsuario789",
       "role": "usuario"
+    },
+    {
+      "id": "24b6",
+      "name": "Rene Guevara",
+      "email": "rene@gmail.com",
+      "password": "contraseña01",
+      "role": "usuario"
     }
   ],
   "projects": [
@@ -29,6 +36,7 @@
       "startDate": "2025-10-01",
       "endDate": "2025-12-17",
       "managerId": 1,
+      "imageUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
       "id": "1"
     },
     {
@@ -37,6 +45,7 @@
       "description": "Test",
       "startDate": "2025-10-12",
       "endDate": "2026-05-10",
+      "imageUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
       "managerId": 1
     }
   ],
@@ -48,7 +57,7 @@
       "startDate": "2025-10-05",
       "dueDate": "2025-10-20",
       "priority": "alta",
-      "status": "finalizado",
+      "status": "en progreso",
       "projectId": 1,
       "userId": 2
     },
@@ -70,7 +79,7 @@
       "startDate": "2025-10-15",
       "dueDate": "2025-10-25",
       "priority": "media",
-      "status": "pendiente",
+      "status": "finalizado",
       "projectId": 1,
       "userId": 3
     }

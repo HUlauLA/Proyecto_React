@@ -1,9 +1,3 @@
-/* 
-   Datos ingresados para el inicio de sesión:
-   Correo: laura09sofia@gmail.com
-   Contraseña: 123abc 
-   rol: Gerente
-*/
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -21,26 +15,63 @@ export default function LoginPage() {
     setError("");
     try {
       await login(form);
-      router.push("/dashboard"); 
+      router.push("/dashboard");
     } catch (err) {
-      setError(err.message || "Error al iniciar sesión"); 
+      setError(err.message || "Error al iniciar sesión");
     }
   };
 
   return (
-    <div className="container py-5" style={{ maxWidth: 420 }}>
-      <h2 className="mb-3">Iniciar sesión</h2>
-      <form onSubmit={onSubmit} className="vstack gap-3">
-        <input className="form-control" type="email" placeholder="Correo"
-               value={form.email} onChange={e=>setForm({...form, email:e.target.value})} required />
-        <input className="form-control" type="password" placeholder="Contraseña"
-               value={form.password} onChange={e=>setForm({...form, password:e.target.value})} required />
-        {error && <div className="alert alert-danger py-2">{error}</div>}
-        <button className="btn btn-primary">Ingresar</button>
-        <div className="small">
-          ¿No tienes cuenta? <Link href="/auth/registro">Crear cuenta</Link>
+    <div className="d-flex align-items-center justify-content-center vh-100 bg-light">
+      <div className="card shadow-sm" style={{ maxWidth: 400, width: "100%" }}>
+        <div className="card-body p-4">
+          {/* Icono */}
+          <div className="text-center mb-3">
+            <i className="bi bi-person-circle display-1 text-secondary"></i>
+          </div>
+
+          <h4 className="text-center mb-4">Iniciar sesión</h4>
+
+          <form onSubmit={onSubmit} className="vstack gap-3">
+            <div>
+              <label className="form-label">Correo electrónico</label>
+              <input
+                className="form-control"
+                type="email"
+                placeholder="correo@ejemplo.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="form-label">Contraseña</label>
+              <input
+                className="form-control"
+                type="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            {error && <div className="alert alert-danger py-2">{error}</div>}
+
+            <button className="btn btn-dark w-100">Ingresar</button>
+
+            <div className="text-center small mt-2">
+              ¿No tienes cuenta?{" "}
+              <Link href="/auth/registro" className="text-decoration-none">
+                Crear cuenta
+              </Link>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

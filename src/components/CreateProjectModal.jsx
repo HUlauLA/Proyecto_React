@@ -114,7 +114,7 @@ export default function CreateProjectModal({
         managerId: 1,
       };
 
-      const projectResponse = await fetch('process.env.NEXT_PUBLIC_API_URL/projects', {
+      const projectResponse = await fetch(process.env.NEXT_PUBLIC_API_URL + '/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProject),

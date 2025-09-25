@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 const UserContext = createContext(undefined);
-const API_URL = "process.env.NEXT_PUBLIC_API_URL/users";
+const API_URL = process.env.NEXT_PUBLIC_API_URL + "/users";
 
 export function UserProvider({ children }) {
   const [users, setUsers] = useState([]);

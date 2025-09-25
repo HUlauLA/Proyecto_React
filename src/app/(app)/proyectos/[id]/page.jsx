@@ -26,7 +26,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      const response = await fetch(`process.env.NEXT_PUBLIC_API_URL/tasks/${task.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks/${task.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -158,9 +158,9 @@ export default function ProjectDetailPage() {
     const fetchData = async () => {
       try {
         const [projectRes, tasksRes, usersRes] = await Promise.all([
-          fetch(`process.env.NEXT_PUBLIC_API_URL/projects?id=${id}`),
-          fetch(`process.env.NEXT_PUBLIC_API_URL/tasks?projectId=${id}`),
-          fetch(`process.env.NEXT_PUBLIC_API_URL/users`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects?id=${id}`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks?projectId=${id}`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`),
         ]);
 
         if (!projectRes.ok || !tasksRes.ok || !usersRes.ok) {

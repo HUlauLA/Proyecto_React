@@ -113,8 +113,8 @@ export default function ProyectosPage() {
     const fetchProjects = async () => {
       try {
         const [projectsRes, tasksRes] = await Promise.all([
-          fetch('http://localhost:3001/projects'),
-          fetch('http://localhost:3001/tasks'),
+          fetch('process.env.NEXT_PUBLIC_API_URL/projects'),
+          fetch('process.env.NEXT_PUBLIC_API_URL/tasks'),
         ]);
         if (!projectsRes.ok || !tasksRes.ok) {
           throw new Error('No se pudieron obtener los datos');

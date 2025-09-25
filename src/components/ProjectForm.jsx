@@ -82,7 +82,7 @@ export default function ProjectForm({
 
       if (isEditing && project) {
         // Actualizar proyecto existente
-        const response = await fetch(`http://localhost:3001/projects/${project.id}`, {
+        const response = await fetch(`process.env.NEXT_PUBLIC_API_URL/projects/${project.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ export default function ProjectForm({
         }
       } else {
         // Crear nuevo proyecto
-        const response = await fetch('http://localhost:3001/projects', {
+        const response = await fetch('process.env.NEXT_PUBLIC_API_URL/projects', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

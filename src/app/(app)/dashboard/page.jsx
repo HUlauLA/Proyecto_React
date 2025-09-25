@@ -8,8 +8,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("http://localhost:3001/projects").then(res => res.json()),
-      fetch("http://localhost:3001/tasks").then(res => res.json())
+      fetch("process.env.NEXT_PUBLIC_API_URL/projects").then(res => res.json()),
+      fetch("process.env.NEXT_PUBLIC_API_URL/tasks").then(res => res.json())
     ]).then(([projectsData, tasksData]) => {
       setProjects(projectsData);
       setTasks(tasksData);

@@ -96,7 +96,7 @@ export default function CreateTaskModal({
         status: 'pendiente',
       };
 
-      const response = await fetch('http://localhost:3001/tasks', {
+      const response = await fetch('process.env.NEXT_PUBLIC_API_URL/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask),

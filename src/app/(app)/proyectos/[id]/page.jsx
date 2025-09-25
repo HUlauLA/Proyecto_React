@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import CreateTaskModal from "@/components/CreateTaskModal";
+import TaskDetailModal from "@/components/TaskDetailModal"; // Importamos el nuevo modal renombrado
 import EditProjectModal from "@/components/EditProjectModal";
 import { useAuth } from "@/context/AuthContext";
 
-const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
+const TaskCard = ({ task, assignedUser, onUpdateTask, onClick }) => {
   const getPriorityDetails = (priority) => {
     switch (priority) {
       case "alta":
@@ -25,7 +25,8 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
 
   const { icon, bg, text } = getPriorityDetails(task.priority);
 
-  const handleStatusChange = async (newStatus) => {
+  const handleStatusChange = async (e, newStatus) => {
+    e.stopPropagation(); // Detenemos la propagación para no abrir el modal
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/tasks/${task.id}`,
@@ -44,7 +45,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
   };
 
   return (
-    <div className="card mb-3">
+    <div className="card mb-3" onClick={onClick} style={{ cursor: 'pointer' }}>
       <div className={`card-header ${bg} ${text} small fw-bold`}>
         Prioridad {task.priority}
       </div>
@@ -69,7 +70,6 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
 
         <div className="d-flex justify-content-between align-items-center border-top pt-2 mt-3">
           <div>
-            Fecha de finalización:
             <small className="text-muted ms-1">
               {new Date(task.dueDate).toLocaleDateString()}
             </small>
@@ -78,7 +78,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
             {task.status === "en progreso" && (
               <button
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => handleStatusChange("pendiente")}
+                onClick={(e) => handleStatusChange(e, "pendiente")}
               >
                 <i className="bi bi-arrow-left"></i>
               </button>
@@ -86,7 +86,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
             {task.status === "finalizado" && (
               <button
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => handleStatusChange("en progreso")}
+                onClick={(e) => handleStatusChange(e, "en progreso")}
               >
                 <i className="bi bi-arrow-left"></i>
               </button>
@@ -95,7 +95,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
             {task.status === "pendiente" && (
               <button
                 className="btn btn-sm btn-outline-primary"
-                onClick={() => handleStatusChange("en progreso")}
+                onClick={(e) => handleStatusChange(e, "en progreso")}
               >
                 <i className="bi bi-arrow-right"></i>
               </button>
@@ -103,7 +103,7 @@ const TaskCard = ({ task, assignedUser, onUpdateTask }) => {
             {task.status === "en progreso" && (
               <button
                 className="btn btn-sm btn-outline-success"
-                onClick={() => handleStatusChange("finalizado")}
+                onClick={(e) => handleStatusChange(e, "finalizado")}
               >
                 <i className="bi bi-arrow-right"></i>
               </button>
@@ -122,6 +122,7 @@ const TaskColumn = ({
   onUpdateTask,
   onAddTask,
   userRole,
+  onCardClick,
 }) => (
   <div className="col-md-4">
     <div className="bg-light p-3 rounded h-100">
@@ -132,6 +133,7 @@ const TaskColumn = ({
           task={task}
           assignedUser={users.find((u) => u.id === task.userId)}
           onUpdateTask={onUpdateTask}
+          onClick={() => onCardClick(task)}
         />
       ))}
       {title === "Tareas pendientes" && userRole === "gerente" && (
@@ -154,7 +156,13 @@ export default function ProjectDetailPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showTaskModal, setShowTaskModal] = useState(false);
+
+  const [taskModalState, setTaskModalState] = useState({
+    show: false,
+    mode: 'create',
+    task: null,
+  });
+  
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -204,6 +212,10 @@ export default function ProjectDetailPage() {
     setTasks((currentTasks) => [...currentTasks, newTask]);
   };
 
+  const handleTaskDeleted = (deletedTask) => {
+    setTasks((currentTasks) => currentTasks.filter((t) => t.id !== deletedTask.id));
+  };
+
   const handleProjectUpdated = async () => {
     try {
       const projectRes = await fetch(
@@ -246,6 +258,18 @@ export default function ProjectDetailPage() {
       console.error("Error eliminando el proyecto:", err);
       alert("Hubo un error al eliminar el proyecto.");
     }
+  };
+
+  const openTaskModal = (task) => {
+    setTaskModalState({ show: true, mode: 'view', task });
+  };
+
+  const openCreateTaskModal = () => {
+    setTaskModalState({ show: true, mode: 'create', task: null });
+  };
+  
+  const closeTaskModal = () => {
+    setTaskModalState({ show: false, mode: 'create', task: null });
   };
 
   if (loading) return <p>Cargando proyecto...</p>;
@@ -292,8 +316,9 @@ export default function ProjectDetailPage() {
           tasks={pendingTasks}
           users={users}
           onUpdateTask={handleUpdateTask}
-          onAddTask={() => setShowTaskModal(true)}
+          onAddTask={openCreateTaskModal}
           userRole={user?.role}
+          onCardClick={openTaskModal}
         />
         <TaskColumn
           title="Tareas en progreso"
@@ -301,6 +326,7 @@ export default function ProjectDetailPage() {
           users={users}
           onUpdateTask={handleUpdateTask}
           userRole={user?.role}
+          onCardClick={openTaskModal}
         />
         <TaskColumn
           title="Tareas finalizadas"
@@ -308,15 +334,20 @@ export default function ProjectDetailPage() {
           users={users}
           onUpdateTask={handleUpdateTask}
           userRole={user?.role}
+          onCardClick={openTaskModal}
         />
       </div>
 
-      <CreateTaskModal
-        show={showTaskModal}
-        onClose={() => setShowTaskModal(false)}
+      <TaskDetailModal
+        show={taskModalState.show}
+        mode={taskModalState.mode}
+        task={taskModalState.task}
+        onClose={closeTaskModal}
         users={users}
         projectId={id}
         onTaskCreated={handleTaskCreated}
+        onTaskUpdated={handleUpdateTask}
+        onTaskDeleted={handleTaskDeleted}
       />
 
       <EditProjectModal
@@ -374,4 +405,3 @@ export default function ProjectDetailPage() {
     </div>
   );
 }
-

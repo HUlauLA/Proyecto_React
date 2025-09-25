@@ -54,13 +54,17 @@ export default function UsersPage() {
                 <td className="text-center">
                   <button
                     className="btn btn-sm btn-outline-dark me-2"
-                    onClick={() => {/* editar */ }}
+                    onClick={() => {
+                      setForm({ ...u, password: "" });
+                      setEditingId(u.id);
+                      setShowModal(true);
+                    }}
                   >
                     <i className="bi bi-pencil-square"></i> Editar
                   </button>
                   <button
                     className="btn btn-sm btn-outline-dark"
-                    onClick={() => {/* eliminar */ }}
+                    onClick={() => removeUser(String(u.id))}
                   >
                     <i className="bi bi-trash"></i> Eliminar
                   </button>

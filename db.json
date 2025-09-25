@@ -47,6 +47,24 @@
       "endDate": "2026-05-10",
       "imageUrl": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df",
       "managerId": 1
+    },
+    {
+      "id": "bb67d086-d839-40dc-b3cd-a2105d034e61",
+      "name": "Test",
+      "description": "Test",
+      "startDate": "2025-10-10",
+      "endDate": "2025-12-16",
+      "imageUrl": "/images/bf95f244-f73e-4606-a3a5-eecea376b9bf-Test.webp",
+      "managerId": 1
+    },
+    {
+      "id": "6474b2cf-bd1a-46f9-99b6-d29bddf80fec",
+      "name": "assets",
+      "description": "test",
+      "startDate": "2025-10-10",
+      "endDate": "2025-12-23",
+      "imageUrl": "/images/f306fcbb-3671-47a2-bdb6-4844d87e3569-assets.jpg",
+      "managerId": 1
     }
   ],
   "tasks": [
@@ -57,7 +75,7 @@
       "startDate": "2025-10-05",
       "dueDate": "2025-10-20",
       "priority": "alta",
-      "status": "en progreso",
+      "status": "finalizado",
       "projectId": 1,
       "userId": 2
     },

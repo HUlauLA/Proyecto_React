@@ -17,10 +17,10 @@ export default function ProjectForm({
     endDate: '',
     imageUrl: ''
   });
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Cargar datos del proyecto si estamos editando
   useEffect(() => {
     if (isEditing && project) {
       setFormData({
@@ -39,6 +39,11 @@ export default function ProjectForm({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file || null);
   };
 
   const validateForm = () => {
@@ -65,6 +70,25 @@ export default function ProjectForm({
     return true;
   };
 
+  const uploadFile = async () => {
+    if (!selectedFile) return null;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error('Error al subir el archivo');
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Error en la subida');
+
+    return data.filePath;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -75,18 +99,26 @@ export default function ProjectForm({
 
     setLoading(true);
     try {
+      let imageUrl = formData.imageUrl;
+
+      if (selectedFile) {
+        imageUrl = await uploadFile();
+      }
+
       const projectData = {
         ...formData,
-        managerId: user?.id || 1 // Usar el ID del usuario actual como gerente
+        imageUrl,
+        managerId: user?.id || 1
       };
 
       if (isEditing && project) {
-        // Actualizar proyecto existente
+        if (!selectedFile) {
+          projectData.imageUrl = project.imageUrl;
+        }
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${project.id}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectData),
         });
 
@@ -94,12 +126,9 @@ export default function ProjectForm({
           throw new Error('Error al actualizar el proyecto');
         }
       } else {
-        // Crear nuevo proyecto
-        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/projects', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectData),
         });
 
@@ -119,9 +148,7 @@ export default function ProjectForm({
   return (
     <form onSubmit={handleSubmit}>
       {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
-        </div>
+        <div className="alert alert-danger">{error}</div>
       )}
 
       <div className="mb-3">
@@ -135,7 +162,6 @@ export default function ProjectForm({
           name="name"
           value={formData.name}
           onChange={handleInputChange}
-          placeholder="Ingresa el nombre del proyecto"
           required
         />
       </div>
@@ -151,7 +177,6 @@ export default function ProjectForm({
           rows="4"
           value={formData.description}
           onChange={handleInputChange}
-          placeholder="Describe los objetivos y alcance del proyecto"
           required
         />
       </div>
@@ -188,40 +213,34 @@ export default function ProjectForm({
       </div>
 
       <div className="mb-3">
-        <label htmlFor="imageUrl" className="form-label small text-muted">
-          URL de imagen del proyecto
+        <label htmlFor="imageFile" className="form-label small text-muted">
+          Imagen del proyecto {isEditing && '(opcional si no deseas cambiarla)'}
         </label>
         <input
-          type="url"
+          type="file"
           className="form-control"
-          id="imageUrl"
-          name="imageUrl"
-          value={formData.imageUrl}
-          onChange={handleInputChange}
-          placeholder="https://ejemplo.com/imagen.jpg"
+          id="imageFile"
+          accept="image/*"
+          onChange={handleFileChange}
         />
-        <div className="form-text">
-          Puedes usar una URL de imagen externa o una imagen local
-        </div>
+        {isEditing && project?.imageUrl && (
+          <div className="form-text">
+            Imagen actual:{" "}
+            <a href={project.imageUrl} target="_blank" rel="noreferrer">
+              Ver imagen
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="d-flex justify-content-end gap-2">
-        <button
-          type="button"
-          className="btn btn-light"
-          onClick={onCancel}
-          disabled={loading}
-        >
+        <button type="button" className="btn btn-light" onClick={onCancel} disabled={loading}>
           Cancelar
         </button>
-        <button
-          type="submit"
-          className="btn btn-dark"
-          disabled={loading}
-        >
+        <button type="submit" className="btn btn-dark" disabled={loading}>
           {loading ? (
             <>
-              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span className="spinner-border spinner-border-sm me-2" role="status"></span>
               {isEditing ? 'Actualizando...' : 'Creando...'}
             </>
           ) : (
@@ -232,3 +251,4 @@ export default function ProjectForm({
     </form>
   );
 }
+

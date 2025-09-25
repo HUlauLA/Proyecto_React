@@ -27,7 +27,7 @@ export default function Sidebar() {
       <h5 className="mb-4">Nombre del proyecto</h5>
 
       <div className="d-grid gap-2">
-        {user?.role == 'gerent' && (
+        {user?.role == 'gerente' && (
           <Item
             href="/dashboard"
             label="Dashboard"
